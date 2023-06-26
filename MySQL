@@ -1,0 +1,62 @@
+\\ alumni who are participated in alternative breaks program UCSD \\  
+
+-------------------------------------------------------------------------------------------
+
+if object_id('tempdb..#union') is not null drop table #union;
+select distinct a.Constituent_LookupID
+			, a.Constituent_Name
+			, a.Constituent_SystemID
+			, a.Alumni_Record  
+			, a.CAE_Constituency
+			, e.Involvement_Name
+			, e.Involvement_Type
+			, e.Comment
+into #union
+from radar.dbo.RADAR_ALUMNI a
+inner join radar.dbo.RADAR_EDUCATIONAL_INVOLVEMENT e on a.Constituent_SystemID = e.Constituent_SystemID 
+																			and e.Involvement_Name = 'Alternative Breaks' 
+where Alumni_Record = 1
+
+-- select * from #union 
+
+
+if object_id('tempdb..#altbreaks') is not null drop table #altbreaks; 
+select s.[Lookup ID]
+	  ,s.[Formatted Name]
+	  ,s.[Last Name or Organization Name]
+	  ,[Involvement Name] = u.[Involvement_Name]
+    ,[Involvement Type] = u.[Involvement_Type]
+	  ,[Alternative Breaks Information] = case when u.[Comment] = 'CSTASK0029326' then '' else u.Comment end 
+    ,s.[CAE Constituency]
+    ,s.[Birth Date]
+	  ,[Emailable] = case when s.[Do Not Contact - Email] = '' and s.[Do Not Contact - GDPR-Email] = '' and s.[Primary Email Address] not in ('', 'DNC') then 'True' else '' end 
+	  ,[Mailable] = case when s.[Do Not Contact - Mail] = '' and s.[Do Not Contact - GDPR-Mail] = '' and s.[Primary Address] not in ('', 'DNC') then 'True' else '' end 
+	  ,[Phonable] = case when s.[Do Not Contact - Phone] = '' and s.[Do Not Contact - GDPR-Phone] = '' and s.[Primary Phone Number] not in ('', 'DNC') then 'True' else '' end
+	  ,s.[Has Active DO NOT]
+    ,s.[Primary Email Type]
+into #altbreaks
+from radar.dbo.RADAR_STANDARD_START s
+inner join #union u on u.[Constituent_LookupID] = s.[Lookup ID]
+where s.Toxic_Exclusions = ''
+
+--select * from #altbreaks 
+
+
+-- first table 
+select distinct [Lookup ID]
+	  ,[Formatted Name]
+	  ,[Last Name or Organization Name]
+    ,[Primary Email Type]
+from #altbreaks
+
+-- second table 
+select [Lookup ID]
+	  ,[Formatted Name]
+    ,[Last Name or Organization Name]
+    ,[Alternative Breaks Information] 
+from #altbreaks 
+order by [Last Name or Organization Name] asc 
+
+
+-- if object_id('REPORT_ALTERNATIVE_BREAKS','U') is not null drop table dbo.REPORT_ALTERNATIVE_BREAKS
+-- into dbo.REPORT_ALTERNATIVE_BREAKS 
