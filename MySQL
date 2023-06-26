@@ -22,38 +22,44 @@ where Alumni_Record = 1
 
 if object_id('tempdb..#altbreaks') is not null drop table #altbreaks; 
 select s.[Lookup ID]
-	  ,s.[Formatted Name]
-	  ,s.[Last Name or Organization Name]
-	  ,[Involvement Name] = u.[Involvement_Name]
-    ,[Involvement Type] = u.[Involvement_Type]
-	  ,[Alternative Breaks Information] = case when u.[Comment] = 'CSTASK0029326' then '' else u.Comment end 
-    ,s.[CAE Constituency]
-    ,s.[Birth Date]
-	  ,[Emailable] = case when s.[Do Not Contact - Email] = '' and s.[Do Not Contact - GDPR-Email] = '' and s.[Primary Email Address] not in ('', 'DNC') then 'True' else '' end 
-	  ,[Mailable] = case when s.[Do Not Contact - Mail] = '' and s.[Do Not Contact - GDPR-Mail] = '' and s.[Primary Address] not in ('', 'DNC') then 'True' else '' end 
-	  ,[Phonable] = case when s.[Do Not Contact - Phone] = '' and s.[Do Not Contact - GDPR-Phone] = '' and s.[Primary Phone Number] not in ('', 'DNC') then 'True' else '' end
-	  ,s.[Has Active DO NOT]
-    ,s.[Primary Email Type]
+	,s.[Formatted Name]
+	,s.[Last Name or Organization Name]
+	,[Involvement Name] = u.[Involvement_Name]
+	,[Involvement Type] = u.[Involvement_Type]
+	,[Alternative Breaks Information] = case when u.[Comment] = 'CSTASK0029326' then '' else u.Comment end 
+	,s.[CAE Constituency]
+	,s.[Birth Date]
+	,[Emailable] = case when s.[Do Not Contact - Email] = '' and s.[Do Not Contact - GDPR-Email] = '' and s.[Primary Email Address] not in ('', 'DNC') then 'True' else '' end 
+	,[Mailable] = case when s.[Do Not Contact - Mail] = '' and s.[Do Not Contact - GDPR-Mail] = '' and s.[Primary Address] not in ('', 'DNC') then 'True' else '' end 
+	,[Phonable] = case when s.[Do Not Contact - Phone] = '' and s.[Do Not Contact - GDPR-Phone] = '' and s.[Primary Phone Number] not in ('', 'DNC') then 'True' else '' end
+	,s.[Has Active DO NOT]
+	,s.[Primary Email Type]
 into #altbreaks
 from radar.dbo.RADAR_STANDARD_START s
 inner join #union u on u.[Constituent_LookupID] = s.[Lookup ID]
 where s.Toxic_Exclusions = ''
 
---select * from #altbreaks 
+-- select * from #altbreaks 
 
 
 -- first table 
 select distinct [Lookup ID]
-	  ,[Formatted Name]
-	  ,[Last Name or Organization Name]
-    ,[Primary Email Type]
+	,[Formatted Name]
+	,[Last Name or Organization Name]
+   	,[Primary Email Type]
+	,[Title]
+	,[First Name]
+	,[Nickname]
+	,[Middle]
+	,[Suffix 1]
+	,[Suffix 2] 
 from #altbreaks
 
 -- second table 
 select [Lookup ID]
-	  ,[Formatted Name]
-    ,[Last Name or Organization Name]
-    ,[Alternative Breaks Information] 
+	,[Formatted Name]
+    	,[Last Name or Organization Name]
+   	,[Alternative Breaks Information] 
 from #altbreaks 
 order by [Last Name or Organization Name] asc 
 
